@@ -1,0 +1,7 @@
+[proxmox]
+%{ for server in proxmoxservers ~}
+${server.name} ansible_host=${server.network_interface.0.addresses.0}
+%{ endfor ~}
+
+[proxmox:vars]
+ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'

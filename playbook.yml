@@ -1,0 +1,227 @@
+---
+- hosts: proxmox
+  become: yes
+  become_user: root
+  become_method: sudo
+  tasks:
+  - name: Get Proxmox GPG key
+    get_url:
+      url: http://download.proxmox.com/debian/proxmox-release-bullseye.gpg
+      dest: /etc/apt/trusted.gpg.d/proxmox-release-bullseye.gpg
+
+  - name: Install Proxmox repository
+    apt_repository:
+      repo: deb [arch=amd64] http://download.proxmox.com/debian/pve bullseye pve-no-subscription
+      state: present
+
+  - name: Add public key
+    copy:
+      dest: /root/.ssh/id_rsa.pub
+      mode: 0400
+      content: |
+        ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCwYJc245sNF//7VjMTz8eYVZ1o38x0V9AoyKcxmNV1hr+ofTbVShjLW5KkXVBIFaUn0s32ZK8i3HC5WRoqg/R7FaOqix1s1YD6YbL+M3UVy2X5LfP2HTMGlvWLKgfyUjr6tQKgMA58WBzaemfEg0UjFWHfBhICz25YZlBo/toep5BGdAXgmBOb23yU4GLeAay9A2UGQyTxGVPeBbQollgZgQ6+QDb4Id3G7pZo1SbndH+NMYd2TYp8SP29Ky9j3IgE4PzYV2M45PieduXRL2yTizrhckWw0/JnxIW0oLyORrSRCAgTkRQBW+ZVj31HR/7o9bSiBD9qtA8W0QXqZv5z root@proxmox2
+
+  - name: Add hourly cronjob
+    copy:
+      dest: /etc/cron.hourly/novo_ansible
+      mode: 0755
+      content: |
+        #!/bin/bash
+
+        # TODO
+        # fetch git updates
+        # run ansible, using flock?
+
+  - name: Add private key
+    copy:
+      dest: /root/.ssh/id_rsa
+      mode: 0400
+      content: |
+        -----BEGIN OPENSSH PRIVATE KEY-----
+        b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABFwAAAAdzc2gtcn
+        NhAAAAAwEAAQAAAQEAsGCXNuObDRf/+1YzE8/HmFWdaN/MdFfQKMinMZjVdYa/qH021UoY
+        y1uSpF1QSBWlJ9LN9mSvItxwuVkaKoP0exWjqosdbNWA+mGy/jN1Fctl+S3z9h0zBpb1iy
+        oH8lI6+rUCoDAOfFgc2npnxINFIxVh3wYSAs9uWGZQaP7aHqeQRnQF4JgTm9t8lOBi3gGs
+        vQNlBkMk8RlT3gW0KJZYGYEOvkA2+CHdxu6WaNUm53R/jTGHdk2KfEj9vSsvY9yIBOD82F
+        djOOT4nnbl0S9sk4s64XJFsNPyZ8SFtKC8jka0kQgIE5EUAVvmVY99R0f+6PW0ogQ/arQP
+        FtEF6mb+cwAAA8gMtbv4DLW7+AAAAAdzc2gtcnNhAAABAQCwYJc245sNF//7VjMTz8eYVZ
+        1o38x0V9AoyKcxmNV1hr+ofTbVShjLW5KkXVBIFaUn0s32ZK8i3HC5WRoqg/R7FaOqix1s
+        1YD6YbL+M3UVy2X5LfP2HTMGlvWLKgfyUjr6tQKgMA58WBzaemfEg0UjFWHfBhICz25YZl
+        Bo/toep5BGdAXgmBOb23yU4GLeAay9A2UGQyTxGVPeBbQollgZgQ6+QDb4Id3G7pZo1Sbn
+        dH+NMYd2TYp8SP29Ky9j3IgE4PzYV2M45PieduXRL2yTizrhckWw0/JnxIW0oLyORrSRCA
+        gTkRQBW+ZVj31HR/7o9bSiBD9qtA8W0QXqZv5zAAAAAwEAAQAAAQAEYEEgMYF1T7UgLUFT
+        KoKPOwCOy46tDEiz2labmmkhY1h5+7FSlWYMFZeL0GzffPn+BPLrPBBEUyfQ0W8ewutb6m
+        uHHbB7NMjgbXAdcnVjNwqupf85ifvsG+63pzFPR88CzV7lTovtddoxaXwNmhwrBKrK98GW
+        pELemptAH6KVxBP57oW+MfEvp27dzbpVaAAxrlo7+q/z0OH3di3kH3xZxi50Rp5LJfnU4N
+        1DT2EjMNIhxx9+1ES3pDO7l1RS2uUiNCiGSMkuRdGlvhNQKLoAIb47zskaPUxGGeeGxyF2
+        8ecM94c2yc96zMD0Oiux1O1q2nCqWKOj37xj0M14PeeRAAAAgQCJPflSfmZHkDKoSnEtu8
+        BSmzHg5nspP8v0CRKAMEjdwFNCpN0UYoV2koCAhVIj9KIhQSpRZWdMLBofwRQUrTmcDeCq
+        2iQ7clJlr7uTRKVNZbW7x/GO9CWkVcxJc9lmD8JWFgtCFLdD4+NN6Iq7MM+WMV+Fm2X+y7
+        7mWDtpC4KPHgAAAIEA2oa5QG4culKaUmLYyrwzGoBqH/LwlhieMWh4WZUtG73dpdqridiy
+        jVMWk7fiWKulpsWJ8kMNDyyQqdtyV3mjfZNjfkPrwwyVoEXoQ4r55Giaor8AefFpmbG1Nb
+        hsVqOkia4yRoUxHEjq+hYUOneZOF4oVZiEzHkCY6sDK3kvjX8AAACBAM6fiHDyDyBbGvtl
+        5E5FVgiu0LPcs94d8E4see7WlEzZMWLVjpqU2AQdxWkAMqgLAfbqGBxK58GLZy+z5ZH7WX
+        m9LHRvDtHCCXQf6/zsdg7Ndbt44H3PaVIxd0hSEHaX6ziaorduGHJtxuy5KgiOuAZ/fSbd
+        NXQfc0f9F6YB2LENAAAADXJvb3RAcHJveG1veDIBAgMEBQ==
+        -----END OPENSSH PRIVATE KEY-----
+
+  - name: Statify hosts file
+    blockinfile:
+      dest: /etc/hosts
+      content: |
+        {% for pve in groups['proxmox'] %}
+        {{ hostvars[pve].ansible_default_ipv4.address }} {{ pve }}
+        {% endfor %}
+    tags: hosts
+
+#  # TODO
+#  - name: Remove ubuntu user
+#  - name: Create local users
+#  - ansible pull
+
+
+  - name: Statify DNS resolving
+    copy:
+      dest: /etc/resolv.conf
+      content: |
+        {%- for ns in ansible_dns.nameservers|unique -%}
+        nameserver {{ ns }}
+        {% endfor %}
+    notify: restart network
+
+  - name: Statify static network config
+    copy:
+      dest: /etc/network/interfaces
+      content: |
+        auto {{ ansible_default_ipv4.alias }}
+        iface {{ ansible_default_ipv4.alias }} inet static
+          address {{ ansible_default_ipv4.address }}/24
+          gateway {{ ansible_default_ipv4.gateway }}
+    notify: restart network
+
+  - name: Install dependencies packages
+    apt:
+      name:
+      - locales-all
+      - qemu-guest-agent
+      - ifupdown2
+      - postfix
+      - open-iscsi
+      install_recommends: false
+      update_cache: true
+
+  - name: Pass options to dpkg on run
+    apt:
+      upgrade: full
+      update_cache: yes
+
+  - name: Add host to hosts
+    lineinfile:
+      path: /etc/hosts
+      line: "{{ ansible_ens3.ipv4.address }} {{ ansible_hostname }}"
+      search_string: 127.0.1.1
+
+  - name: Install proxmox
+    apt:
+      name:
+      - proxmox-ve
+      install_recommends: false
+      state: present
+
+  - name: remove os-prober & cloud-init
+    apt:
+      name:
+      - os-prober
+      - cloud-init
+      state: absent
+      purge: true
+      autoremove: true
+      autoclean: true
+
+  - name: Cleanup cloud-init leftovers
+    file:
+      state: absent
+      name: "{{ item }}"
+    tags: clean
+    loop:
+    - /var/lib/cloud/
+    - /etc/cloud
+# Err:6 https://enterprise.proxmox.com/debian/pve bullseye InRelease
+#   401  Unauthorized [IP: 212.224.123.70 443]
+#   Reading package lists... Done
+#   E: Failed to fetch https://enterprise.proxmox.com/debian/pve/dists/bullseye/InRelease  401  Unauthorized [IP: 212.224.123.70 443]
+#   E: The repository 'https://enterprise.proxmox.com/debian/pve bullseye InRelease' is not signed.
+#   N: Updating from such a repository can't be done securely, and is therefore disabled by default.
+#   N: See apt-secure(8) manpage for repository creation and user configuration details.
+
+  - name: Remove Enterprise apt-file
+    file:
+      path: /etc/apt/sources.list.d/pve-enterprise.list
+      state: absent
+
+  handlers:
+  - name: restart network
+    command:
+      cmd: ifup {{ ansible_default_ipv4.alias }}
+
+- name: Master
+  become: yes
+  become_user: root
+  become_method: sudo
+  hosts: proxmox[0]
+  tasks:
+  - name: Create cluster on first host
+    command:
+      cmd: pvecm create proxcluster
+
+  - name: Waits for port 8006
+    wait_for:
+      host: "{{ ansible_ens3.ipv4.address }}"
+      port: 8006
+
+  - name: Klaar!
+    debug:
+      msg: "Staat klaar op https://{{ ansible_ens3.ipv4.address }}:8006"
+
+- name: Nodes
+  become: yes
+  become_user: root
+  become_method: sudo
+  hosts: proxmox[1:]
+  serial: 1
+  tasks:
+  # - name: Check cluster is ready (api call tegen proxmox1?)
+  - name: Wait for cluster to settle
+    pause:
+      seconds: 10
+
+  - name: Find SSH key
+    command:
+      cmd: "ssh-keyscan {{ groups['proxmox'][0] }}"
+    register: ssh_scan
+
+  - name: Write SSH key to known_hosts
+    blockinfile:
+      create: true
+      dest: /root/.ssh/known_hosts
+      content: "{{ ssh_scan.stdout}}"
+
+  - name: "Join to cluster {{ groups['proxmox'][0] }}"
+    command:
+      cmd: "pvecm add {{ groups['proxmox'][0] }} -use_ssh"
+
+- name: All reboot
+  become: yes
+  hosts: proxmox
+  tasks:
+  - name: Check if a reboot is needed for ProxMox boxes
+    stat:
+      path: /var/run/reboot-required
+    register: check_reboot
+
+  - name: Reboot?
+    reboot:
+      msg: Reboot required
+    when: check_reboot.stat.exists
+
+# TODO Testen of resolv.conf en interfaces ook nodig is nu cloudinit wordt weggegooid

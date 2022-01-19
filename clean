@@ -1,0 +1,18 @@
+rm -rf \
+ .terraform* \
+ terraform.tfstate* \
+ inventory
+
+virsh destroy proxmox1; virsh undefine proxmox1 --remove-all-storage
+virsh destroy proxmox2; virsh undefine proxmox2 --remove-all-storage
+virsh destroy proxmox3; virsh undefine proxmox3 --remove-all-storage
+virsh destroy proxmox4; virsh undefine proxmox4 --remove-all-storage
+virsh destroy proxmox5; virsh undefine proxmox5 --remove-all-storage
+
+terraform init
+
+terraform destroy -auto-approve
+
+terraform apply -auto-approve
+
+ansible-playbook playbook.yml
