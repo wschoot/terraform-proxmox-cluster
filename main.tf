@@ -18,8 +18,8 @@ variable "domain"   { default = "pve" }
 
 variable "hostname" {
   type    = list(string)
-  default = ["proxmox1"]
-  #default = ["proxmox1", "proxmox2", "proxmox3"]
+  #default = ["proxmox1"]
+  default = ["proxmox1", "proxmox2", "proxmox3"]
 }
 
 variable "ssh_username" {

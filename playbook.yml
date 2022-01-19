@@ -73,7 +73,6 @@
         {% for pve in groups['proxmox'] %}
         {{ hostvars[pve].ansible_default_ipv4.address }} {{ pve }}
         {% endfor %}
-    tags: hosts
 
 #  # TODO
 #  - name: Remove ubuntu user
@@ -81,14 +80,14 @@
 #  - ansible pull
 
 
-  - name: Statify DNS resolving
-    copy:
-      dest: /etc/resolv.conf
-      content: |
-        {%- for ns in ansible_dns.nameservers|unique -%}
-        nameserver {{ ns }}
-        {% endfor %}
-    notify: restart network
+#  - name: Statify DNS resolving
+#    copy:
+#      dest: /etc/resolv.conf
+#      content: |
+#        {%- for ns in ansible_dns.nameservers|unique -%}
+#        nameserver {{ ns }}
+#        {% endfor %}
+#    notify: restart network
 
   - name: Statify static network config
     copy:
@@ -143,7 +142,6 @@
     file:
       state: absent
       name: "{{ item }}"
-    tags: clean
     loop:
     - /var/lib/cloud/
     - /etc/cloud
