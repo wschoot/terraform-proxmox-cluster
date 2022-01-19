@@ -50,12 +50,8 @@ You can reach proxmox on every node on port 8006
 # Todo
 
 - Script that runs hourly, fetches git updates, runs ansible pull (using flock to prevent duplicate runs)
-
 - remove ubuntu user
-
 - create local users
-
-  
 
 ## adhoc
 
