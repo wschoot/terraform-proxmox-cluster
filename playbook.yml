@@ -1,5 +1,6 @@
 ---
-- hosts: proxmox
+- name: Configure all hosts
+  hosts: proxmox
   become: yes
   become_user: root
   become_method: sudo
