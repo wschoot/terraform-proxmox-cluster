@@ -1,3 +1,11 @@
+#!/bin/bash
+
+set -eux
+
+ansible-lint playbook.yml
+
+ansible-playbook --syntax-check playbook.yml
+
 rm -rf \
  .terraform* \
  terraform.tfstate* \

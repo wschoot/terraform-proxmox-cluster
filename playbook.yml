@@ -74,12 +74,6 @@
         {{ hostvars[pve].ansible_default_ipv4.address }} {{ pve }}
         {% endfor %}
 
-#  # TODO
-#  - name: Remove ubuntu user
-#  - name: Create local users
-#  - ansible pull
-
-
 #  - name: Statify DNS resolving
 #    copy:
 #      dest: /etc/resolv.conf
@@ -172,6 +166,7 @@
   - name: Create cluster on first host
     command:
       cmd: pvecm create proxcluster
+      creates: /etc/pve/corosync.conf
 
   - name: Waits for port 8006
     wait_for:
@@ -203,11 +198,12 @@
     blockinfile:
       create: true
       dest: /root/.ssh/known_hosts
-      content: "{{ ssh_scan.stdout}}"
+      content: "{{ ssh_scan.stdout }}"
 
   - name: "Join to cluster {{ groups['proxmox'][0] }}"
     command:
       cmd: "pvecm add {{ groups['proxmox'][0] }} -use_ssh"
+      creates: /etc/pve/corosync.conf
 
 - name: All reboot
   become: yes
@@ -222,5 +218,3 @@
     reboot:
       msg: Reboot required
     when: check_reboot.stat.exists
-
-# TODO Testen of resolv.conf en interfaces ook nodig is nu cloudinit wordt weggegooid
